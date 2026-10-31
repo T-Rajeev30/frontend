@@ -31,7 +31,7 @@ export default function AssistantPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -131,9 +131,9 @@ export default function AssistantPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex min-h-[420px] flex-col h-[calc(100dvh-13rem)] lg:h-[calc(100vh-4rem)]">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-white">AI Business Assistant</h1>
+        <h1 className="text-2xl font-bold text-white">{t("assistantTitle")}</h1>
         <p className="text-sm text-slate-400 mt-1">Ask questions about your business — powered by your real data</p>
       </div>
 
@@ -146,7 +146,7 @@ export default function AssistantPage() {
               </div>
               <h3 className="text-lg font-medium text-white mb-1">How can I help your business?</h3>
               <p className="text-sm text-slate-400 mb-6 max-w-md">
-                I analyse your real transaction data, customer segments, and product performance. You can type or tap the mic to ask by voice.
+                I analyse the selected merchant&apos;s transaction data, customer segments, and product performance. You can type or tap the mic to ask by voice.
               </p>
               <div className="flex flex-wrap gap-2 justify-center max-w-lg">
                 {suggestedQuestions.map((q) => (
@@ -234,7 +234,7 @@ export default function AssistantPage() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about your business performance..."
+              placeholder={t("askBusiness")}
               className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
               disabled={loading || recording}
             />
@@ -247,12 +247,13 @@ export default function AssistantPage() {
             >
               {recording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
             </Button>
-            <Button type="submit" disabled={loading || !input.trim() || recording}>
+              <Button type="submit" disabled={loading || !input.trim() || recording}>
               <Send className="h-4 w-4" />
+                <span className="sr-only">{t("send")}</span>
             </Button>
           </form>
           {recording && (
-            <p className="text-xs text-red-400 mt-2 animate-pulse">Recording... Click the mic button to stop</p>
+            <p className="text-xs text-red-600 mt-2 animate-pulse">{t("recording")}</p>
           )}
         </div>
       </Card>

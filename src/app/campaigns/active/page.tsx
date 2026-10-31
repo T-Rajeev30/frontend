@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { useFetch } from "@/lib/use-fetch";
 import { ErrorState, Skeleton } from "@/components/ui/error-state";
-import { Megaphone, Eye } from "lucide-react";
+import { Megaphone, Eye, PhoneCall } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/language-context";
 
 interface Campaign {
   id?: string;
@@ -15,6 +16,7 @@ interface Campaign {
   description: string;
   status: string;
   type: string;
+  channel?: "message" | "voice";
   budgetAmount: number;
   estimatedProfit: number;
   actualCost: number | null;
@@ -32,14 +34,20 @@ const statusBadge: Record<string, "default" | "success" | "warning" | "danger" |
 };
 
 export default function ActiveCampaignsPage() {
+  const { t } = useLanguage();
   const { data, loading, error, refetch } = useFetch<{ campaigns: Campaign[] }>("/api/campaigns");
   const campaigns = data?.campaigns ?? [];
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Campaign Manager</h1>
-        <p className="text-sm text-slate-400 mt-1">Track and manage all your growth campaigns</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">{t("campaigns")}</h1>
+          <p className="text-sm text-slate-400 mt-1">Track and manage all your growth campaigns</p>
+        </div>
+        <Link href="/campaigns/demo-call">
+          <Button variant="secondary" size="sm"><PhoneCall className="h-3 w-3" /> Single Customer Demo Call</Button>
+        </Link>
       </div>
 
       {error ? (
@@ -62,19 +70,20 @@ export default function ActiveCampaignsPage() {
             const cId = c.id || c._id || "";
             return (
               <Card key={cId}>
-                <CardContent className="p-5 flex items-center justify-between">
+                <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-white">{c.name}</h3>
                       <Badge variant={statusBadge[c.status]}>{c.status}</Badge>
                       <Badge>{c.type}</Badge>
+                      {c.channel === "voice" && <Badge variant="info">Voice draft</Badge>}
                     </div>
                     <p className="text-sm text-slate-400 mb-2">{c.description}</p>
                     <div className="flex gap-4 text-xs text-slate-500">
                       <span>Budget: {formatCurrency(c.budgetAmount)}</span>
                       <span>Target: {c.targetSegment}</span>
-                      {c.actualProfit !== null && (
-                        <span className="text-emerald-400">Profit: {formatCurrency(c.actualProfit)}</span>
+                      {typeof c.actualProfit === "number" && (
+                        <span className="text-emerald-700">Simulated incremental profit: {formatCurrency(c.actualProfit)}</span>
                       )}
                       <span>{new Date(c.createdAt).toLocaleDateString("en-IN")}</span>
                     </div>

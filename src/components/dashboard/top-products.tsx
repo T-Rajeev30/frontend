@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useFetch } from "@/lib/use-fetch";
 import { ErrorState, Skeleton } from "@/components/ui/error-state";
 import { ShoppingBag } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 interface Product {
   name: string;
@@ -14,6 +15,7 @@ interface Product {
 }
 
 export function TopProducts() {
+  const { t } = useLanguage();
   const { data: products, loading, error, refetch } = useFetch<Product[]>("/api/dashboard/top-products");
 
   const maxRevenue = products?.[0]?.revenue || 1;
@@ -21,7 +23,7 @@ export function TopProducts() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Products</CardTitle>
+        <CardTitle>{t("topProducts")}</CardTitle>
       </CardHeader>
       <CardContent>
         {error ? (
@@ -33,7 +35,7 @@ export function TopProducts() {
         ) : products.length === 0 ? (
           <div className="py-8 text-center">
             <ShoppingBag className="h-8 w-8 text-slate-600 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No product data yet</p>
+            <p className="text-sm text-slate-500">{t("noProductData")}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -49,7 +51,7 @@ export function TopProducts() {
                     <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                       <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(p.revenue / maxRevenue) * 100}%` }} />
                     </div>
-                    <Badge variant="default">{p.orders} orders</Badge>
+                    <Badge variant="default">{p.orders} {t("orderCount")}</Badge>
                   </div>
                 </div>
               </div>

@@ -108,11 +108,17 @@ export function CampaignResultsView({ id }: { id: string }) {
         </div>
       </div>
 
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="p-4 text-sm text-amber-900">
+          Demo simulation only. No customers were contacted. Outcomes are randomly simulated from this merchant's product prices and costs.
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
           { label: "Campaign Cost", value: formatCurrency(financials.totalCampaignCost), icon: DollarSign, color: "text-red-400" },
           { label: "Incremental Revenue", value: formatCurrency(financials.incrementalRevenue), icon: TrendingUp, color: "text-blue-400" },
-          { label: "Incremental Profit", value: formatCurrency(financials.incrementalProfit), icon: TrendingUp, color: "text-emerald-400" },
+          { label: "Incremental gross profit (sim.)", value: formatCurrency(financials.incrementalProfit), icon: TrendingUp, color: "text-emerald-400" },
           { label: "Merchant ROI", value: `${financials.merchantRoi}%`, icon: Target, color: "text-amber-400" },
           { label: "Customers Reached", value: funnel.contacted.toString(), icon: Users, color: "text-purple-400" },
         ].map((kpi) => (
@@ -132,7 +138,7 @@ export function CampaignResultsView({ id }: { id: string }) {
           <CardDescription>Customer journey through the campaign</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between px-8">
+          <div className="flex flex-wrap items-center justify-center gap-3 px-2 sm:px-6">
             {funnelData.map((step, i) => (
               <div key={step.name} className="flex items-center gap-4">
                 <div className="text-center">
@@ -165,16 +171,16 @@ export function CampaignResultsView({ id }: { id: string }) {
         <Card>
           <CardHeader>
             <CardTitle>Treatment vs Control Revenue</CardTitle>
-            <CardDescription>Revenue comparison proves campaign effectiveness</CardDescription>
+            <CardDescription>Revenue comparison from a simulated treatment and control run</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={comparisonData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" stroke="#475569" fontSize={12} />
                 <YAxis stroke="#475569" fontSize={11} tickFormatter={(v) => `₹${v}`} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, fontSize: 12 }}
+                  contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 12, color: "#002970" }}
                   formatter={(value: unknown) => [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"]}
                 />
                 <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
@@ -195,7 +201,7 @@ export function CampaignResultsView({ id }: { id: string }) {
               { label: "Treatment Revenue", value: formatCurrency(financials.treatmentRevenue), color: "text-blue-400" },
               { label: "Incremental Revenue", value: formatCurrency(financials.incrementalRevenue), color: "text-emerald-400" },
               { label: "Campaign Cost", value: `-${formatCurrency(financials.totalCampaignCost)}`, color: "text-red-400" },
-              { label: "Net Profit", value: formatCurrency(financials.incrementalProfit), color: "text-emerald-400 font-bold text-lg" },
+              { label: "Incremental gross profit", value: formatCurrency(financials.incrementalProfit), color: "text-emerald-400 font-bold text-lg" },
             ].map((row) => (
               <div key={row.label} className="flex justify-between items-center py-2 border-b border-slate-800 last:border-0">
                 <span className="text-sm text-slate-400">{row.label}</span>
@@ -234,7 +240,7 @@ export function CampaignResultsView({ id }: { id: string }) {
             <h4 className="text-sm font-medium text-blue-400">Control Group Methodology</h4>
             <p className="text-xs text-slate-400 mt-1">
               {funnel.controlGroup} customers were held out as a control group.
-              All financial calculations are deterministic — no AI involvement.
+              Demo simulation only. No customers were contacted. Outcomes use the selected merchant's product prices and costs with randomized sample purchases. Fixed overhead and tax are excluded.
             </p>
           </div>
         </CardContent>

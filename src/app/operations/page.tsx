@@ -7,6 +7,7 @@ import { Package, AlertTriangle, Clock } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
+import { useLanguage } from "@/lib/language-context";
 
 interface ForecastSlot {
   slot: string;
@@ -31,12 +32,13 @@ interface ForecastData {
 }
 
 export default function OperationsPage() {
+  const { t } = useLanguage();
   const { data, loading, error, refetch } = useFetch<ForecastData>("/api/operations/forecast");
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-white">Operations & Prep Planner</h1>
+        <h1 className="text-2xl font-bold text-white">{t("operations")}</h1>
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
@@ -47,13 +49,28 @@ export default function OperationsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-white">Operations & Prep Planner</h1>
+        <h1 className="text-2xl font-bold text-white">{t("operations")}</h1>
         <ErrorState message={error} onRetry={refetch} />
       </div>
     );
   }
 
   if (!data) return null;
+
+  if (data.forecast.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-paytm-navy">{t("operations")}</h1>
+        <Card className="border-dashed">
+          <CardContent className="p-10 text-center">
+            <Package className="mx-auto mb-3 h-10 w-10 text-slate-500" />
+            <h2 className="font-semibold text-paytm-navy">Not enough transaction history to forecast demand</h2>
+            <p className="mt-2 text-sm text-slate-500">Forecasts appear after this merchant has transaction data for the upcoming weekday.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const chartData = data.forecast.slice(0, 8).map((item) => ({
     name: item.productName,
@@ -66,9 +83,9 @@ export default function OperationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Operations & Prep Planner</h1>
+        <h1 className="text-2xl font-bold text-white">{t("operations")}</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Demand forecast for {data.dayOfWeek}, {data.forecastDate} (based on {data.basedOnWeeks} weeks of data)
+          {t("forecastDate")} {data.dayOfWeek}, {data.forecastDate} ({data.basedOnWeeks} {t("basedOnWeeks")})
         </p>
       </div>
 
@@ -77,22 +94,22 @@ export default function OperationsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-blue-400" />
-            Prepare for Tomorrow
+            {t("prepareTomorrow")}
           </CardTitle>
           <CardDescription>Predicted units per product per time slot</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={chartData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis type="number" stroke="#475569" fontSize={11} />
               <YAxis dataKey="name" type="category" stroke="#475569" fontSize={10} width={100} />
-              <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, fontSize: 12 }} />
+              <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 12, color: "#002970" }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="Morning" stackId="a" fill="#f59e0b" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="Lunch" stackId="a" fill="#3b82f6" />
-              <Bar dataKey="Afternoon" stackId="a" fill="#8b5cf6" />
-              <Bar dataKey="Evening" stackId="a" fill="#10b981" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="Morning" name={t("morning")} stackId="a" fill="#f59e0b" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="Lunch" name={t("lunch")} stackId="a" fill="#3b82f6" />
+              <Bar dataKey="Afternoon" name={t("afternoon")} stackId="a" fill="#8b5cf6" />
+              <Bar dataKey="Evening" name={t("evening")} stackId="a" fill="#10b981" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -101,19 +118,19 @@ export default function OperationsPage() {
       {/* Forecast Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Detailed Forecast</CardTitle>
+          <CardTitle>{t("detailedForecast")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800">
-                  <th className="text-left py-2 text-slate-400 font-medium">Product</th>
-                  <th className="text-center py-2 text-amber-400 font-medium">Morning</th>
-                  <th className="text-center py-2 text-blue-400 font-medium">Lunch</th>
-                  <th className="text-center py-2 text-purple-400 font-medium">Afternoon</th>
-                  <th className="text-center py-2 text-emerald-400 font-medium">Evening</th>
-                  <th className="text-center py-2 text-white font-medium">Total</th>
+                  <th className="text-left py-2 text-slate-400 font-medium">{t("product")}</th>
+                  <th className="text-center py-2 text-amber-700 font-medium">{t("morning")}</th>
+                  <th className="text-center py-2 text-blue-700 font-medium">{t("lunch")}</th>
+                  <th className="text-center py-2 text-purple-700 font-medium">{t("afternoon")}</th>
+                  <th className="text-center py-2 text-emerald-700 font-medium">{t("evening")}</th>
+                  <th className="text-center py-2 text-paytm-navy font-medium">{t("total")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,7 +166,7 @@ export default function OperationsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-400" />
-              Slow-Moving Products
+              {t("slowMovingProducts")}
             </CardTitle>
             <CardDescription>Products with significantly below-average sales in the last 30 days</CardDescription>
           </CardHeader>

@@ -10,6 +10,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useFetch } from "@/lib/use-fetch";
 import { ErrorState, Skeleton } from "@/components/ui/error-state";
 import { IndianRupee, Receipt, TrendingUp, Users } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 interface Stats {
   totalRevenue: number;
@@ -23,13 +24,14 @@ interface Stats {
 }
 
 export default function DashboardPage() {
+  const { t } = useLanguage();
   const { data: stats, loading, error, refetch } = useFetch<Stats>("/api/dashboard/stats");
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Business Dashboard</h1>
-        <p className="text-sm text-slate-400 mt-1">Real-time overview of your business performance</p>
+        <h1 className="text-2xl font-bold text-white">{t("businessDashboard")}</h1>
+        <p className="text-sm text-slate-400 mt-1">{t("dashboardDescription")}</p>
       </div>
 
       {error ? (
@@ -40,10 +42,10 @@ export default function DashboardPage() {
             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32" />)
           ) : (
             <>
-              <StatCard title="Total Revenue" value={formatCurrency(stats.totalRevenue)} change={stats.revenueChange} icon={IndianRupee} />
-              <StatCard title="Transactions" value={stats.totalTransactions} change={stats.transactionChange} icon={Receipt} />
-              <StatCard title="Avg Order Value" value={formatCurrency(stats.avgOrderValue)} change={stats.aovChange} icon={TrendingUp} />
-              <StatCard title="Returning Customers" value={stats.returningCustomers} change={stats.returningChange} icon={Users} />
+              <StatCard title={t("revenue30d")} value={formatCurrency(stats.totalRevenue)} change={stats.revenueChange} icon={IndianRupee} />
+              <StatCard title={t("transactions")} value={stats.totalTransactions} change={stats.transactionChange} icon={Receipt} />
+              <StatCard title={t("averageOrderValue")} value={formatCurrency(stats.avgOrderValue)} change={stats.aovChange} icon={TrendingUp} />
+              <StatCard title={t("returningCustomers")} value={stats.returningCustomers} change={stats.returningChange} icon={Users} />
             </>
           )}
         </div>

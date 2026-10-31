@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { ErrorState, Skeleton } from "@/components/ui/error-state";
 import { api, formatCurrency } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { useLanguage } from "@/lib/language-context";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
@@ -48,6 +49,7 @@ export default function AnalyticsPageWrapper() {
 }
 
 function AnalyticsPage() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -77,7 +79,7 @@ function AnalyticsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-white">Campaign Analytics</h1>
+        <h1 className="text-2xl font-bold text-white">{t("campaignAnalytics")}</h1>
         <ErrorState message={error} onRetry={loadData} />
       </div>
     );
@@ -86,7 +88,7 @@ function AnalyticsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-white">Campaign Analytics</h1>
+        <h1 className="text-2xl font-bold text-white">{t("campaignAnalytics")}</h1>
         <div className="grid grid-cols-5 gap-4">
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
@@ -98,7 +100,7 @@ function AnalyticsPage() {
   if (campaigns.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-white">Campaign Analytics</h1>
+        <h1 className="text-2xl font-bold text-white">{t("campaignAnalytics")}</h1>
         <Card className="border-dashed">
           <CardContent className="p-12 text-center">
             <TrendingUp className="h-12 w-12 text-slate-600 mx-auto mb-4" />
@@ -129,7 +131,7 @@ function AnalyticsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Campaign Analytics & ROI</h1>
+          <h1 className="text-2xl font-bold text-white">{t("campaignAnalytics")}</h1>
           <p className="text-sm text-slate-400 mt-1">Incremental profit measurement with control group analysis</p>
         </div>
         {campaigns.length > 1 && (
@@ -145,15 +147,21 @@ function AnalyticsPage() {
         )}
       </div>
 
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="p-4 text-sm text-amber-900">
+          Campaign analytics use simulated outcomes. No customers were contacted; incremental profit is estimated from catalog costs and simulated campaign costs.
+        </CardContent>
+      </Card>
+
       {result && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { label: "Campaign Cost", value: formatCurrency(result.totalCampaignCost), icon: DollarSign, color: "text-red-400" },
-              { label: "Incremental Revenue", value: formatCurrency(result.incrementalRevenue), icon: TrendingUp, color: "text-blue-400" },
-              { label: "Incremental Profit", value: formatCurrency(result.incrementalProfit), icon: TrendingUp, color: "text-emerald-400" },
-              { label: "Merchant ROI", value: `${result.merchantRoi}%`, icon: Target, color: "text-amber-400" },
-              { label: "Customers Reached", value: result.totalContacted.toString(), icon: Users, color: "text-purple-400" },
+              { label: t("campaignCost"), value: formatCurrency(result.totalCampaignCost), icon: DollarSign, color: "text-red-400" },
+              { label: t("incrementalRevenue"), value: formatCurrency(result.incrementalRevenue), icon: TrendingUp, color: "text-blue-400" },
+              { label: t("incrementalGrossProfit"), value: formatCurrency(result.incrementalProfit), icon: TrendingUp, color: "text-emerald-400" },
+              { label: t("merchantRoi"), value: `${result.merchantRoi}%`, icon: Target, color: "text-amber-400" },
+              { label: t("customersReached"), value: result.totalContacted.toString(), icon: Users, color: "text-purple-400" },
             ].map((kpi) => (
               <Card key={kpi.label} className="p-4">
                 <div className="flex items-center gap-2 mb-1">
@@ -167,11 +175,11 @@ function AnalyticsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Campaign Funnel</CardTitle>
+              <CardTitle>{t("campaignFunnel")}</CardTitle>
               <CardDescription>Customer journey through the campaign</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between px-8">
+              <div className="flex flex-wrap items-center justify-center gap-3 px-2 sm:px-6">
                 {funnelData.map((step, i) => (
                   <div key={step.name} className="flex items-center gap-4">
                     <div className="text-center">
@@ -203,16 +211,16 @@ function AnalyticsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Treatment vs Control Revenue</CardTitle>
+                <CardTitle>{t("treatmentVsControl")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={comparisonData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="name" stroke="#475569" fontSize={12} />
                     <YAxis stroke="#475569" fontSize={11} tickFormatter={(v) => `₹${v}`} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, fontSize: 12 }}
+                      contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 12, color: "#002970" }}
                       formatter={(value: unknown) => [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"]}
                     />
                     <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
@@ -233,7 +241,7 @@ function AnalyticsPage() {
                   { label: "Treatment Revenue", value: formatCurrency(result.treatmentRevenue), color: "text-blue-400" },
                   { label: "Incremental Revenue", value: formatCurrency(result.incrementalRevenue), color: "text-emerald-400" },
                   { label: "Campaign Cost", value: `-${formatCurrency(result.totalCampaignCost)}`, color: "text-red-400" },
-                  { label: "Net Profit", value: formatCurrency(result.incrementalProfit), color: "text-emerald-400 font-bold text-lg" },
+                  { label: "Incremental gross profit", value: formatCurrency(result.incrementalProfit), color: "text-emerald-400 font-bold text-lg" },
                 ].map((row) => (
                   <div key={row.label} className="flex justify-between items-center py-2 border-b border-slate-800 last:border-0">
                     <span className="text-sm text-slate-400">{row.label}</span>
@@ -253,7 +261,7 @@ function AnalyticsPage() {
                 <h4 className="text-sm font-medium text-blue-400">Control Group Methodology</h4>
                 <p className="text-xs text-slate-400 mt-1">
                   {result.controlGroupSize} customers were held out as a control group.
-                  All financial calculations are deterministic — no AI/LLM involvement in number computation.
+                  Gross profit uses the catalog's product costs and simulated campaign costs. Fixed overhead and tax are excluded.
                 </p>
               </div>
             </CardContent>

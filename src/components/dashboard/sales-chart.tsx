@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/utils";
+import { useLanguage } from "@/lib/language-context";
+import { ErrorState, Skeleton } from "@/components/ui/error-state";
 import {
   AreaChart,
   Area,
@@ -20,22 +22,30 @@ interface ChartData {
 }
 
 export function SalesChart() {
+  const { t } = useLanguage();
   const [data, setData] = useState<ChartData[]>([]);
   const [period, setPeriod] = useState<"daily" | "weekly">("daily");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    let current = true;
     setLoading(true);
+    setError(null);
     api<ChartData[]>(`/api/dashboard/sales-chart?period=${period}`)
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [period]);
+      .then((result) => { if (current) setData(result); })
+      .catch((cause: unknown) => {
+        if (current) setError(cause instanceof Error ? cause.message : "Unable to load revenue trend");
+      })
+      .finally(() => { if (current) setLoading(false); });
+    return () => { current = false; };
+  }, [period, refreshKey]);
 
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>Revenue Trend</CardTitle>
+        <CardTitle>{t("revenueTrend")}</CardTitle>
         <div className="flex gap-1">
           {(["daily", "weekly"] as const).map((p) => (
             <Button
@@ -44,14 +54,18 @@ export function SalesChart() {
               variant={period === p ? "primary" : "ghost"}
               onClick={() => setPeriod(p)}
             >
-              {p.charAt(0).toUpperCase() + p.slice(1)}
+              {p === "daily" ? t("daily") : t("weekly")}
             </Button>
           ))}
         </div>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <div className="h-72 flex items-center justify-center text-slate-500">Loading chart...</div>
+        {error ? (
+          <ErrorState message={error} onRetry={() => setRefreshKey((key) => key + 1)} />
+        ) : loading ? (
+          <Skeleton className="h-72" />
+        ) : data.length === 0 ? (
+          <div className="flex h-72 items-center justify-center text-sm text-slate-500">{t("noTransactionData")}</div>
         ) : (
           <ResponsiveContainer width="100%" height={288}>
             <AreaChart data={data}>
@@ -61,7 +75,7 @@ export function SalesChart() {
                   <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis
                 dataKey="date"
                 stroke="#475569"
@@ -70,7 +84,7 @@ export function SalesChart() {
               />
               <YAxis stroke="#475569" fontSize={11} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
               <Tooltip
-                contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 12, color: "#002970" }}
                 labelStyle={{ color: "#94a3b8" }}
                 formatter={(value: any) => [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"]}
                 labelFormatter={(label: any) => new Date(String(label)).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}

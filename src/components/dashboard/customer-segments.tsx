@@ -4,6 +4,7 @@ import { useFetch } from "@/lib/use-fetch";
 import { ErrorState, Skeleton } from "@/components/ui/error-state";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Users } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 interface Segment {
   name: string;
@@ -14,12 +15,13 @@ interface Segment {
 const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#6366f1"];
 
 export function CustomerSegments() {
+  const { t } = useLanguage();
   const { data: segments, loading, error, refetch } = useFetch<Segment[]>("/api/dashboard/customer-segments");
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Customer Segments</CardTitle>
+        <CardTitle>{t("customerSegments")}</CardTitle>
       </CardHeader>
       <CardContent>
         {error ? (
@@ -29,7 +31,7 @@ export function CustomerSegments() {
         ) : segments.length === 0 ? (
           <div className="py-8 text-center">
             <Users className="h-8 w-8 text-slate-600 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No customer data yet</p>
+            <p className="text-sm text-slate-500">{t("noTransactionData")}</p>
           </div>
         ) : (
           <div className="flex items-center gap-6">
@@ -40,7 +42,7 @@ export function CustomerSegments() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, fontSize: 12 }} />
+                <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 12, color: "#002970" }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-3">

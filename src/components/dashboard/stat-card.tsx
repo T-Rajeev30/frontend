@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { cn, formatCurrency, formatPercent } from "@/lib/utils";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 interface StatCardProps {
   title: string;
@@ -13,6 +14,7 @@ interface StatCardProps {
 }
 
 export function StatCard({ title, value, change, icon: Icon, prefix }: StatCardProps) {
+  const { t } = useLanguage();
   const isPositive = change >= 0;
   return (
     <Card className="p-5">
@@ -24,7 +26,7 @@ export function StatCard({ title, value, change, icon: Icon, prefix }: StatCardP
           </p>
           <div className={cn("mt-2 flex items-center gap-1 text-xs font-medium", isPositive ? "text-emerald-400" : "text-red-400")}>
             {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-            {formatPercent(change)} vs last month
+            {formatPercent(change)} {t("vsLastMonth")}
           </div>
         </div>
         <div className="rounded-lg bg-blue-600/10 p-2.5">
